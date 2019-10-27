@@ -1,0 +1,34 @@
+load data
+Characterset UTF8
+infile'C004H101110102001-WTDK-20190930.txt'
+append into table WTDK
+fields terminated by '^A'
+trailing nullcols
+(
+XDJJH,
+XDHTH,
+KHTYBH,
+YXJGDM,
+JRXKZH,
+NBJGH,
+WTRKHTYBH,
+WTRKHMC,
+SYRMC,
+WTJJKHXH,
+WTJJKHXMC,
+WTJJZH,
+WTZHLX,
+WTJE,
+SJWTDKJE,
+WTDKYT,
+SFSX,
+SXFFS,
+SXFJE,
+XYQSRQ,
+XYDQRQ,
+JBRXM,
+KHJLGH,
+JBJGMC,
+XYZT,
+CJRQ
+)

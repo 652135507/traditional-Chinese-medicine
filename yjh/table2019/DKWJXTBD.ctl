@@ -1,0 +1,29 @@
+load data
+Characterset UTF8
+infile'C004H101110102001-DKWJXTBD-20190930.txt'
+append into table DKWJXTBD
+fields terminated by '^A'
+trailing nullcols
+(
+TZRQ,
+XDJJH,
+XDHTH,
+KHTYBH,
+YXJGDM,
+JRXKZH,
+NBJGH,
+YXJGMC,
+YWJXT,
+XWJXT,
+BZ,
+ZRJE,
+ZCJE,
+KHMC,
+JBGYH,
+TZGYH,
+SQGYH,
+SPGYH,
+BDYY,
+BDFS,
+CJRQ
+)

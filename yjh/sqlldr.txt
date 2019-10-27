@@ -1,0 +1,407 @@
+一、新建扩展名为ctl文件
+load data
+infile 'c:\test.txt'
+append into table 表名
+fields terminated by '|' (注释：txt文件中的分隔字符)
+(字段名1，字段名2,日期 Date'yyyy-mm-dd hh24:mi:ss',字段名4)
+
+二、利用 批处理命令来执行ctl文件
+SQLLDR 数据库用户名/密码@服务名  CONTROL=C:\*.CTL  LOG=C:\日志.log errors=2000（注释：errors每次生成的错误行数） 
+
+2. CMD下使用的语句：
+sqlldr userid=showdata@prod control=data.ctl
+
+其中重点看下服务名：
+
+@prod
+
+1）.此服务名一定要在server下的tnsnames.ora进行配置，而不是client下。。
+
+prod=
+  (DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = 1.1.1.1)(PORT = 1521))
+    )
+    (CONNECT_DATA =
+      (SERVICE_NAME = prod)
+    )
+  )
+
+2）. PING一下：tnsping prod
+
+3)  查看一下监听状态 ：lsnrctl status
+
+如果没有起动，使用命令起动：lsnrctl start 
+
+
+SQLLDR——CTL文件：字段设置
+原创 Oracle 作者：brj880719 时间：2017-12-21 10:51:20 2394 0
+
+position 关键字用来指定列的开始和结束位置
+　 position(m:n)：指从第 m 个字符开始截止到第 n 个字符作为列值
+　 position(*+2:15)：直接指定数值的方式叫做绝对偏移量，如果使用*号，则为相对偏移量，表示上一个字段哪里结束，这次就哪里开始，相对便宜量也可以再做运算。
+　 position(*) char(9)：这种相对偏移量+类型和长度的优势在于，你只需要为第一列指定开始位置，其他列只需要指定列长度就可以。
+FILLER：控制文件中指定 FILLER，表示该列值不导入表中。
+普通 
+
+    Load DATA
+    INFILE *
+    INTO TABLE BONUS
+    FIELDS TERMINATED BY ","
+    (ENAME,JOB,SAL)
+    BEGINDATA
+    SMITH,CLEAK,3904
+    ALLEN,SALESMAN,2891
+    WARD,SALESMAN,3128
+    KING,PRESIDENT,2523
+
+没有分隔符
+
+    LOAD DATA
+    INFILE *
+    TRUNCATE INTO TABLE BONUS
+    (
+    ENAME position(1:5),
+    JOB position(7:15),
+    SAL position(17:20)
+    )
+    BEGINDATA
+    SMITH CLEAK 2891
+    ALLEN SALESMAN 2891
+    WARD SALESMAN 3128
+    KING PRESIDENT 2523
+
+比导入的表列少
+
+    LOAD DATA
+    INFILE *
+    TRUNCATE INTO TABLE BONUS
+    (
+    ENAME position(1:5),
+    JOB position(7:15),
+    SAL position(17:20),
+    comm "0"
+    )
+    BEGINDATA
+    SMITH CLEAK 2891
+    ALLEN SALESMAN 2891
+    WARD SALESMAN 3128
+    KING PRESIDENT 2523
+
+比导入的表列多 
+
+    LOAD DATA
+    INFILE *
+    TRUNCATE INTO TABLE BONUS
+    (
+    ENAME position(1:6),
+    TCOL FILLER position(8:11),
+    JOB position(13:21),
+    SAL position(23:26)
+    )
+    BEGINDATA
+    SMITH 7369 CLERK 800 20
+    ALLEN 7499 SALESMAN 1600 30
+    WARD 7521 SALESMAN 1250 30
+    JONES 7566 MANAGER 2975 20
+    MARTIN 7654 SALESMAN 1250 30
+    BLAKE 7698 MANAGER 2850 30
+    CLARK 7782 MANAGER 2450 10
+    KING 7839 PRESIDENT 5000 10
+    TURNER 7844 SALESMAN 1500 30
+    JAMES 7900 CLERK 950 30
+    FORD 7902 ANALYST 3000 20
+    MILLER 7934 CLERK 1300 10
+
+导入不同表
+
+    LOAD DATA
+    INFILE *
+    TRUNCATE
+    INTO TABLE BONUS
+    WHEN Tab='BON'
+    (
+    Tab FILLER position(1:3),
+    ENAME position(5:9),
+    JOB position(11:19),
+    SAL position(21:24)
+    )
+    INTO TABLE MANAGER
+    WHEN Tab='MGR'
+    (
+    Tab FILLER position(1:3),
+    MGRNO position(5:6),
+    MNAME position(8:14),
+    JOB position(16:28)
+    )
+    BEGINDATA
+    BON SMITH CLERK 3904
+    BON ALLEN SALER,M 2891
+    BON WARD SALER,"S" 3128
+    BON KING PRESIDENT 2523
+    MGR 10 SMITH SALES MANAGER
+    MGR 11 ALLEN.W TECH MANAGER
+    MGR 16 BLAKE HR MANAGER
+    TMP SMITH 7369 CLERK 800 20
+    TMP ALLEN 7499 SALESMAN 1600 30
+    TMP WARD 7521 SALESMAN 1250 30
+    TMP JONES 7566 MANAGER 2975 20
+
+换行符处理
+
+    LOAD DATA
+    INFILE *
+    TRUNCATE INTO TABLE BONUS
+    FIELDS TERMINATED BY "," OPTIONALLY ENCLOSED BY '"'
+    (ENAME,JOB,SAL)
+    BEGINDATA
+    SMITH,CLEAK,3904
+    ALLEN,"SALER,M",2891
+    WARD,"SALER,""S""",3182
+    KING,PRESIDENT,2523
+
+函数使用
+
+    LOAD DATA
+    INFILE *
+    TRUNCATE INTO TABLE BONUS
+    (
+    ENAME position(1:5),
+    JOB position(7:15),
+    SAL position(17:20),
+    comm "substr(:sal,1,1)"
+    )
+    BEGINDATA
+    SMITH CLEAK 3904
+    ALLEN SALESMAN 2891
+    WARD SALESMAN 3128
+    KING PRESIDENT 2523
+
+大字段处理
+
+    LOAD DATA
+    INFILE * "str '\r\n'"
+    TRUNCATE INTO TABLE MANAGER
+    FIELDS TERMINATED BY "," OPTIONALLY ENCLOSED BY '"'
+    (MGRNO,MNAME,JOB,REMARK char(100000))
+    BEGINDATA
+    10,SMITH,SALES MANAGER,This is SMITH.
+    He is a Sales Manager.|
+    11,ALLEN.W,TECH MANAGER,This is ALLEN.W.
+    He is a Tech Manager.|
+    16,BLAKE,HR MANAGER,"This is BLAKE. He is a Hr Manager. The jobs responsibilities are in the following:
+    1. Ensure the effective local implementation of corporate level HRinitiatives and new programs.
+    2. Take initiatives in defining HR strategy on attracting, hiring, integrating, developing, managing, rewarding and retaining talents for the sustainable development of company business.
+    3. Oversee stanard recruiting an procedures to ensure the company's staffing requirements are met in a timely manner, and interview management level candidates
+    4. Provide employees with fair and appropriate compensation and benefit, to ensure market competitiveness.
+    5. Develop, implement and oversee the training and development programs to upgrade the skills of the employee and to enhance the company's capabilities to met business goals and future challenges."
+
+加载文件内容到大字段
+
+    LOAD DATA
+    INFILE *
+    TRUNCATE INTO TABLE LOBTBL
+    (
+    CREATE_DATE POSITION(1：17) DATE 'YYYY-MM-DD HH24：MI',
+    FILESIZE POSITION(*+1：25) "to_number(:FILESIZE, '99，999，999')",
+    FILEOWNER POSITION(*+1：34),
+    FILENAME POSITION(*+1) char(200) "substr(:FILENAME,instr(:FILENAME, '\\',-1)+1)",
+    FILEDATA LOBFILE(FILENAME) TERMINATED BY EOF
+    )
+    BEGINDATA
+    2009-03-17 09:43 154 JUNSANSI F:\oracle\script\ldr_case11_1.ctl
+    2009-03-17 09:44 189 JUNSANSI F:\oracle\script\ldr_case11_1.dat
+    2009-03-17 09:44 2,369 JUNSANSI F:\oracle\script\ldr_case11_1.log
+    2009-03-16 16:50 173 JUNSANSI F:\oracle\script\ldr_case11_2.ctl
+    2009-03-16 16:49 204 JUNSANSI F:\oracle\script\ldr_case11_2.dat
+    2009-03-16 16:50 1,498 JUNSANSI F:\oracle\script\ldr_case11_2.log
+    2009-03-16 17:41 145 JUNSANSI F:\oracle\script\ldr_case11_3.ctl
+    2009-03-16 17:44 130 JUNSANSI F:\oracle\script\ldr_case11_3.dat
+    2009-03-16 17:44 1,743 JUNSANSI F:\oracle\script\ldr_case11_3.log
+    2009-03-17 11:01 132 JUNSANSI F:\oracle\script\ldr_case11_4.ctl
+    2009-03-17 11:02 188 JUNSANSI F:\oracle\script\ldr_case11_4.dat
+    2009-03-17 11:02 1,730 JUNSANSI F:\oracle\script\ldr_case11_4.log
+
+载入每行的行号
+
+    load data
+    infile *
+    into table t
+    replace
+    (
+    seqno RECNUM //载入每行的行号
+    text Position(1:1024)
+    )
+    BEGINDATA
+    testline1
+    testline2
+
+
+ SQLLDR 可以把一些以文本格式存放的数据顺利的导入到oracle数据库中，是一种在不同数据库之间进行数据迁移的非常方便而且通用的工具。缺点就速度比较慢，另外对blob等类型的数据不方便。
+CTL 文件介绍
+
+第一部分
+
+1、LOAD DATA：通常以此为开头，其前可加如下参数：
+2、UNRECOVERABLE：表示数据不可恢复
+3、RECOVERABLE：表示数据可恢复
+4、CONTINUE_LOAD：表示继续添加
+
+第二部分
+
+1、INFILE：表示数据文件位置，如果值为*，表示数据就在控制文件中，本例中没有单独的数据文件，对于大多数加载而言，都会将数据文件与控制文件分离。
+2、INTO TABLE tbl_name：tbl_name 即数据要加载到的目标表，该表在你执行 SQLLDR 命令之前必须已经创建。
+3、INTO 前还有一些很有意思的参数需要说明；
+4、INSERT：向表中插入数据，表必须为空，如果表非空的话，执行 SQLLDR 命令时会报错，默认就是 INSERT 参数。
+5、APPEND：向表中追加数据，不管表中是否有数据。
+6、REPLACE：替换表中数据，相当于先 DELETE 表中全部数据，然后再 INSERT。
+7、TRUNCATE：类似 REPLACE，只不过这里不使用 DELETE 方式删除表中数据，而是通过 TRUNCATE 的方式删除，然后再 INSERT。
+8、FIELDS TERMINATED BY ","：设置数据部分字符串的分隔值，这里设置为逗号（,）分隔，当然也可以换成其他任意可见字符，只要确定那是数据行中的分隔符就行。
+9、(ENAME, JOB, SAL)：要插入的表的列名，这里需要注意的是列名要与表中列名完全相同，列的顺序可以与表中列顺序不同，但是必须与数据部分的列一一对应。
+10、position 关键字用来指定列的开始和结束位置
+11、position(m:n)：指从第 m 个字符开始截止到第 n 个字符作为列值
+12、position(*+2:15)：直接指定数值的方式叫做绝对偏移量，如果使用*号，则为相对偏移量，表示上一个字段哪里结束，这次就哪里开始，相对便宜量也可以再做运算。
+13、position(*) char(9)：这种相对偏移量+类型和长度的优势在于，你只需要为第一列指定开始位置，其他列只需要指定列长度就可以。
+14、FILLER：控制文件中指定 FILLER，表示该列值不导入表中。
+15、BEGINDATA：表示以下为待加载数据，仅当 INFILE 指定为 * 时有效
+第三部分
+数据 
+
+ 一、SQLLDR语法
+
+语法
+SQLLDR keyword=value [,keyword=value,...]
+
+有效的关键字
+1、userid -- ORACLE 用户名/口令
+2、control -- 控制文件名
+3、log -- 日志文件名
+4、bad -- 错误文件名
+5、data -- 数据文件名
+6、discard -- 废弃文件名
+7、discardmax -- 允许废弃的文件的数目        (全部默认)
+8、skip -- 要跳过的逻辑记录的数目  (默认 0)
+9、load -- 要加载的逻辑记录的数目  (全部默认)
+10、errors -- 允许的错误的数目        (默认 50)
+11、rows -- 常规路径绑定数组中或直接路径保存数据间的行数 (默认: 常规路径 64, 所有直接路径)bindsize -- 常规路径绑定数组的大小 (以字节计)  (默认 256000)
+12、silent -- 运行过程中隐藏消息 (标题,反馈,错误,废弃,分区)
+13、direct -- 使用直接路径                    (默认 FALSE)
+14、parfile -- 参数文件: 包含参数说明的文件的名称
+15、parallel -- 执行并行加载                    (默认 FALSE)
+16、file -- 要从以下对象中分配区的文件
+17、skip_unusable_indexes -- 不允许/允许使用无用的索引或索引分区  (默认 FALSE)
+18、skip_index_maintenance -- 没有维护索引, 将受到影响的索引标记为无用  (默认 FALSE)
+19、commit_discontinued -- 提交加载中断时已加载的行  (默认 FALSE)
+20、readsize -- 读取缓冲区的大小              (默认 1048576)
+21、external_table -- 使用外部表进行加载; NOT_USED, GENERATE_ONLY, EXECUTE
+22、columnarrayrows -- 直接路径列数组的行数  (默认 5000)
+23、streamsize -- 直接路径流缓冲区的大小 (以字节计)  (默认 256000)
+24、multithreading -- 在直接路径中使用多线程
+25、resumable -- 对当前会话启用或禁用可恢复  (默认 FALSE)
+26、resumable_name -- 有助于标识可恢复语句的文本字符串
+27、resumable_timeout -- RESUMABLE 的等待时间 (以秒计)  (默认 7200)
+28、date_cache -- 日期转换高速缓存的大小 (以条目计)  (默认 1000)
+29、no_index_errors -- 出现任何索引错误时中止加载  (默认 FALSE)
+30、partition_memory -- 开始溢出的直接路径分区内存限制 (kb)  (默认 0)
+31、table -- 用于快速模式加载的表
+32、date_format -- 用于快速模式加载的日期格式
+33、timestamp_format -- 用于快速模式加载的时间戳格式
+34、terminated_by -- 由用于快速模式加载的字符终止
+35、enclosed_by -- 由用于快速模式加载的字符封闭
+36、optionally_enclosed_by -- (可选) 由用于快速模式加载的字符封闭
+37、characterset -- 用于快速模式加载的字符集
+38、degree_of_parallelism -- 用于快速模式加载和外部表加载的并行度
+39、trim -- 用于快速模式加载和外部表加载的截取类型
+40、csv -- 用于快速模式加载的 csv 格式数据文件
+41、nullif -- 用于快速模式加载的表级 nullif 子句
+42、field_names -- 用于快速模式加载的数据文件第一条记录字段名设置
+43、dnfs_enable -- 启用或禁用输入数据文件 Direct NFS (dNFS) 的选项  (默认 FALSE)
+44、dnfs_readbuffers -- Direct NFS (dNFS) 读缓冲区数  (默认 4)
+45、sdf_prefix -- 要附加到每个 LOB 文件和辅助数据文件的开头的前缀
+46、help -- 显示帮助消息  (默认 FALSE)
+47、empty_lobs_are_null -- 将空白 LOB 设置为空值  (默认 FALSE)
+48、defaults -- 直接路径默认值加载; EVALUATE_ONCE, EVALUATE_EVERY_ROW, IGNORE, IGNORE_UNSUPPORTED_EVALUATE_ONCE, IGNORE_UNSUPPORTED_EVALUATE_EVERY_ROW
+49、direct_path_lock_wait -- 当前已锁定时, 等待表访问权限  (默认 FALSE)
+二、样例
+
+CTL：LDR_TEST.CTL
+
+    LOAD DATA
+    INFILE *
+    INTO TABLE BONUS
+    FIELDS TERMINATED BY ","
+    (ENAME, JOB, SAL)
+    BEGINDATA
+    SMITH,CLEAK,3904
+    ALLEN,SALESMAN,2891
+    WARD,SALESMAN,3128
+    KING,PRESIDENT,2523
+
+导入命令
+
+    SOLLDR SCOTT/TIGER CONTROL=LDR_TEST.CTL
+
+校验
+
+    select * from scott.BONUS;
+
+
+ SQL*Loader 是一个命令行下的操作工具，对应的操作系统命令是SQLLDR
+
+语法：SQLLDR keyword=value [,keyword=value,...]
+选项：
+　 userid -- ORACLE 用户名/口令
+　 control -- 控制文件名
+　 log -- 日志文件名
+　 bad -- 错误文件名
+　 data -- 数据文件名
+　 discard -- 废弃文件名
+　 discardmax -- 允许废弃的文件的数目        (全部默认)
+　 skip -- 要跳过的逻辑记录的数目  (默认 0)
+　 load -- 要加载的逻辑记录的数目  (全部默认)
+　 errors -- 允许的错误的数目        (默认 50)
+　 rows -- 常规路径绑定数组中或直接路径保存数据间的行数(默认: 常规路径 64, 所有直接路径)
+　 bindsize -- 常规路径绑定数组的大小 (以字节计)  (默认 256000)
+　 silent -- 运行过程中隐藏消息 (标题,反馈,错误,废弃,分区)
+　 direct -- 使用直接路径                    (默认 FALSE)
+　 parfile -- 参数文件: 包含参数说明的文件的名称
+　 parallel -- 执行并行加载                    (默认 FALSE)
+　 file -- 要从以下对象中分配区的文件
+　 skip_unusable_indexes -- 不允许/允许使用无用的索引或索引分区  (默认 FALSE)
+　 skip_index_maintenance -- 没有维护索引, 将受到影响的索引标记为无用  (默认 FALSE)
+　 commit_discontinued -- 提交加载中断时已加载的行  (默认 FALSE)
+　 readsize -- 读取缓冲区的大小              (默认 1048576)
+　 external_table -- 使用外部表进行加载; NOT_USED, GENERATE_ONLY, EXECUTE
+　 columnarrayrows -- 直接路径列数组的行数  (默认 5000)
+　 streamsize -- 直接路径流缓冲区的大小 (以字节计)  (默认 256000)
+　 multithreading -- 在直接路径中使用多线程
+　 resumable -- 对当前会话启用或禁用可恢复  (默认 FALSE)
+　 resumable_name -- 有助于标识可恢复语句的文本字符串
+　 resumable_timeout -- RESUMABLE 的等待时间 (以秒计)  (默认 7200)
+　 date_cache -- 日期转换高速缓存的大小 (以条目计)  (默认 1000)
+　 no_index_errors -- 出现任何索引错误时中止加载  (默认 FALSE)
+　 partition_memory -- 开始溢出的直接路径分区内存限制 (kb)  (默认 0)
+　 table -- 用于快速模式加载的表
+　 date_format -- 用于快速模式加载的日期格式
+　 timestamp_format -- 用于快速模式加载的时间戳格式
+　 terminated_by -- 由用于快速模式加载的字符终止
+　 enclosed_by -- 由用于快速模式加载的字符封闭
+　 optionally_enclosed_by -- (可选) 由用于快速模式加载的字符封闭
+　 characterset -- 用于快速模式加载的字符集
+　 degree_of_parallelism -- 用于快速模式加载和外部表加载的并行度
+　 trim -- 用于快速模式加载和外部表加载的截取类型
+　 csv -- 用于快速模式加载的 csv 格式数据文件
+　 nullif -- 用于快速模式加载的表级 nullif 子句
+　 field_names -- 用于快速模式加载的数据文件第一条记录字段名设置
+　 dnfs_enable -- 启用或禁用输入数据文件 Direct NFS (dNFS) 的选项  (默认 FALSE)
+　 dnfs_readbuffers -- Direct NFS (dNFS) 读缓冲区数  (默认 4)
+　 sdf_prefix -- 要附加到每个 LOB 文件和辅助数据文件的开头的前缀
+　 help -- 显示帮助消息  (默认 FALSE)
+　 empty_lobs_are_null -- 将空白 LOB 设置为空值  (默认 FALSE)
+　 defaults -- 直接路径默认值加载;
+　　  EVALUATE_ONCE
+　　  EVALUATE_EVERY_ROW
+　　  IGNORE
+　　  IGNORE_UNSUPPORTED_EVALUATE_ONCE
+　　  IGNORE_UNSUPPORTED_EVALUATE_EVERY_ROW
+　 direct_path_lock_wait -- 当前已锁定时, 等待表访问权限  (默认 FALSE) 

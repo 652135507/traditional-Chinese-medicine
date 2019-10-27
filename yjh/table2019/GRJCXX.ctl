@@ -1,0 +1,45 @@
+load data
+Characterset UTF8
+infile'C004H101110102001-GRJCXX-20190930.txt'
+append into table GRJCXX
+fields terminated by '^A'
+trailing nullcols
+(
+KHTYBH,
+ZJHM,
+YXJGDM,
+JRXKZH,
+NBJGH,
+LYXT,
+KHXM,
+KHYWXM,
+ZJLB,
+GJ,
+MZ,
+XB,
+XL,
+CSRQ,
+GZDWMC,
+GZDWDZ,
+GZDWDH,
+ZY,
+JTZZ,
+TXDZ,
+JTDH,
+YDDH,
+GRYSR,
+JTYSR,
+HYQK,
+POXM,
+POLXDH,
+POYDDH,
+PODYKHH,
+BXYGBZ,
+SBXHMDBZ,
+SHMDRQ,
+SHMDYY,
+DWXZ,
+ZC,
+SFNH,
+CJRQ
+)

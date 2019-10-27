@@ -1,0 +1,19 @@
+load data
+Characterset UTF8
+infile'C004H101110102001-GRKHGXXX-20190930.txt'
+append into table GRKHGXXX
+fields terminated by '^A'
+trailing nullcols
+(
+KHTYBH,
+YXJGDM,
+JRXKZH,
+NBJGH,
+DYGRKHTYBH,
+SHGX,
+DYGRKHXM,
+DYGRKHGZDWMC,
+DYGRKHGZDWDZ,
+DYGRKHGZDWDH,
+CJRQ
+)
