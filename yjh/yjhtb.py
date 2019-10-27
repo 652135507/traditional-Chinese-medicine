@@ -4,6 +4,9 @@ Created on Wed Oct 16 16:26:59 2019
 @author: glj
 """
 import xlrd
+import calendar
+import datetime
+
 # filepath=r'D:/download/yjh/table2019.xlsx'
 file_r = 'D:/projects/traditional-Chinese-medicine/yjh/yjhtb.xls'
 file_w = 'D:/projects/traditional-Chinese-medicine/yjh/cre_tab.sql'
@@ -180,10 +183,15 @@ def write_sql(**dd):
                 indexArray=[]    
             #create  ctl file
             file_ctl = ctl_dir+k+r'.ctl'
+            td = datetime.date.today()
+            ym = calendar.monthrange(td.year,td.month)
+            #rq = datetime.date( int(str(td.year) ) , int(str(td.month)) , 30 )
+            rq = datetime.date( td.year , td.month , ym[1] )
+            str_rq = rq.strftime('%Y%m%d')
             with open(file_ctl,'w',encoding='utf-8') as fctl :
                 fctl.write('load data\n')
                 fctl.write('Characterset UTF8\n')
-                fctl.write('infile '+'\'C004H101110102001-'+k+'-20190930.txt\'\n')
+                fctl.write('infile '+'\'C004H101110102001-'+k+'-'+str_rq+'.txt'+'\'\n')
                 fctl.write('append into table '+k+'\n')
                 fctl.write('fields terminated by '+'\'^A\''+'\n')
                 fctl.write('trailing nullcols\n')
