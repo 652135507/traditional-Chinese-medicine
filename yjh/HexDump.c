@@ -1,3 +1,6 @@
+
+#include <stdio.h>
+
 void HexDump(char *buf,int len) {
     int i,j,k;
     char binstr[80];
@@ -29,4 +32,9 @@ void HexDump(char *buf,int len) {
         }
         printf("%s\n",binstr);
     }
+}
+
+int main()
+{
+    return 0;
 }
