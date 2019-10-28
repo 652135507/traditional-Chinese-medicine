@@ -1,7 +1,7 @@
 load data
 Characterset UTF8
-infile 'C004H101110102001-DGXDYWJJ-20191031.txt'
-append into table DGXDYWJJ
+infile 'C004H101110102001-GRXDYWJJ-20191031.txt'
+append into table GRXDYWJJ
 fields terminated by '^A'
 trailing nullcols
 (
@@ -46,12 +46,11 @@ BZJBL ,
 BZJBZ ,
 BZJJE ,
 BZJZH ,
-PJHM ,
-PMJE ,
 XDYXM ,
-XDYGH ,
+XDYYGH ,
 XZBZ ,
 LJQKQS ,
 LXQKQS ,
+STZFBZ ,
 CJRQ 
 )

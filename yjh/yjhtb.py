@@ -21,41 +21,42 @@ def read_excel():
     tab_name = 'empty'
     tab_file = 'empty'
     tab_seq = 'empty'
-    tab_flag=0
+    tab_flag = -1
     tables = []
     array = {}
+    #print (sheet_tb.nrows)
     for rown in range(sheet_tb.nrows):
         tb_file1 = sheet_tb.cell_value(rown, 2)
         tb_name1 = sheet_tb.cell_value(rown, 3)
         tb_seq1 = sheet_tb.cell_value(rown, 4)
         rows = sheet_tb.row_values(rown)
         #if not tb_seq1.isspace() :
-        if len(tb_seq1) > 0 :
+        if len(tb_seq1) > 0 : #表头行或标题行
             try:
                 n=int(tb_seq1)
-            except ValueError as e : # 非表头信息行,忽略
+            except ValueError as e : # 非表头行,忽略
                 continue
             except Exception as e :
                 print(e)
             else: #表头行
-                if tab_flag == 0: # 首次进入表头
+                #print (tb_file1)
+                if tab_flag == -1: # 首次进入表头
                     tab_flag = n
-                    tab_file = tb_file1
-                    tab_name = tb_name1
-                    tab_seq = tb_seq1
                 else :
                     array[tab_file] = tables
-                    tables = []
-                    tab_flag = 0
+
+                tab_file = tb_file1
+                tab_name = tb_name1
+                tab_seq = tb_seq1
+                tables = []
                 # print ("fileds of table:",len(tables))
                 # print (tables)
             finally:
                 #print('无论异常与否,都会执行该模块,通常是进行清理工作')
                 pass
-        # 非数字非空为忽略行
-        else : # 无序号行
+        else : # 信息行或字段行
             tab_fd = sheet_tb.cell_value(rown, 6) #字段名
-            if len(tab_fd) < 1 : #无效行
+            if len(tab_fd) < 1 : #空行
                 #print("not useful rows")
                 '''
                 try:
@@ -77,10 +78,11 @@ def read_excel():
                 print(tab_lx)
                 print(tab_bz)
                 '''  
-                tables.append(tab_sm)
                 tables.append(tab_fd)
                 tables.append(tab_lx)
                 tables.append(tab_bz)
+                tables.append(tab_sm)
+    array[tab_file] = tables #最后一张表
     return(array)
 
 def fuc_char(fld):
@@ -115,11 +117,11 @@ switch = {
     
 def write_sql(**dd):
     switch_fld = {
-        2:lambda x:x+r' ',
-        3:func_zdlx,
-        1:lambda x:r' /* ' +x +r'  */',
-        0:lambda x:' ' if (x.find('PK') == -1) else r' not null ' ,
-        4:lambda x:r' /* ' +x +r'  */'
+        1:lambda x:x+r' ',
+        2:func_zdlx,
+        0:lambda x:r', /*' +x +r'*/',
+        3:lambda x:' ' if (x.find('PK') == -1) else r' not null ' ,
+        4:lambda x:r' /*' +x +r'*/'
     }
     with open(file_w,'w',encoding='utf-8') as ftb:
         for k,v in dd.items():
@@ -129,38 +131,34 @@ def write_sql(**dd):
             str1=''
             #print(lend)
             str2=''
-            sqlSeq = ['zdmc','zdlx','zdys','zdPK']
+            sqlSeq = ['zdmc''zdlx','zdPK','zdsm']
             #sqlDict = {'zdmc':'','zdlx':'','zdys':'','zdPK':''}
-            sqlDict = dict.fromkeys(sqlSeq)
+            sqlDict = dict.fromkeys(sqlSeq,'')
             indexArray = []
             ctlArray = []
             for index,x in enumerate(v) :
                 if index == lend-1: #结尾
-                    str1 = switch_fld.get(0,'error')(x)
-                    sqlDict['zdPK'] = str1
-                    sqlDict['zdys'] = sqlDict['zdys'].replace( ',' , ' ')
+                    str1 = switch_fld.get(4,'error')(x)
+                    sqlDict['zdsm'] = str1
+                    #sqlDict['zdys'] = sqlDict['zdys'].replace( ',' , ' ')
                     #print(sqlDict['zdys'])
-                    ftb.write(sqlDict['zdmc']+' '+sqlDict['zdlx']+' '+
-                                    sqlDict['zdPK']+' '+sqlDict['zdys']+'\n'+r');'+'\n')
-                    sqlDict = dict.fromkeys(sqlSeq)
-                    if(str1.find('not') != -1) :
-                        indexArray.append(str2)
+                    ftb.write(sqlDict['zdmc']+' '+sqlDict['zdlx']+' '+sqlDict['zdPK']+' '+sqlDict['zdsm']+'\n'+r');'+'\n')
+                    #sqlDict = dict.fromkeys(sqlSeq, ' ')
                 else:
                     str1 = switch_fld.get((index+1)%4,'0')(x)
-                    if ( (index+1)%4 ==2 ) :
+                    if ( (index+1)%4 ==1 ) :
                         sqlDict['zdmc'] = str1
-                        str2=str1
-                        ctlArray.append(x)
+                        ctlArray.append(sqlDict['zdmc'])
                     elif (index+1)%4 == 0 :
-                        sqlDict['zdPK'] = str1
+                        sqlDict['zdsm'] = str1
                         ftb.write(sqlDict['zdmc']+' '+sqlDict['zdlx']+' '+
-                                    sqlDict['zdPK']+' '+sqlDict['zdys']+'\n')
-                        sqlDict = dict.fromkeys(sqlSeq)
-                        if(str1.find('not') != -1) :
-                            indexArray.append(str2)
-                        str1=''
-                    elif (index+1)%4 == 1 :
-                        sqlDict['zdys'] = r', ' + str1
+                                    sqlDict['zdPK']+' '+sqlDict['zdsm']+'\n')
+                        #sqlDict = dict.fromkeys(sqlSeq,'')
+                        #str1=''
+                    elif (index+1)%4 == 3 :
+                        sqlDict['zdPK'] = str1
+                        if(sqlDict['zdPK'].find('not') != -1):
+                            indexArray.append(sqlDict['zdmc'])
                     else :
                         sqlDict['zdlx'] = str1
             #create index   
@@ -179,8 +177,7 @@ def write_sql(**dd):
                 for value in indexArray :
                     str2 = 'create index '+k+'_idx%d'%(indexArray.index(value))+' on '+k+r'(' +value+r');'
                     ftb.write('\n'+str2+'\n')
-                '''
-                indexArray=[]    
+                '''   
             #create  ctl file
             file_ctl = ctl_dir+k+r'.ctl'
             td = datetime.date.today()
@@ -202,11 +199,10 @@ def write_sql(**dd):
                     else :
                         fctl.write(i+',\n')
                 fctl.write(')\n')
-                ctlArray=[]
 
 if __name__ == '__main__':
     # 读取Excel
     tb_dict={}
     tb_dict=read_excel()
-    #print(tb_dict)
+    print(tb_dict)
     write_sql(**tb_dict)

@@ -5,20 +5,20 @@ append into table JGXXB
 fields terminated by '^A'
 trailing nullcols
 (
-YXJGDM,
-NBJGH,
-JRXKZH,
-YXJGMC,
-JGLB,
-YZBM,
-WDH,
-YYZT,
-CLSJ,
-JGGZKSSJ,
-JGGZZZSJ,
-JGDZ,
-FZRXM,
-FZRZW,
-FZRLXDH,
-CJRQ
+YXJGDM ,
+NBJGH ,
+JRXKZH ,
+YXJGMC ,
+JGLB ,
+YZBM ,
+WDH ,
+YYZT ,
+CLSJ ,
+JGGZKSSJ ,
+JGGZZZSJ ,
+JGDZ ,
+FZRXM ,
+FZRZW ,
+FZRLXDH ,
+CJRQ 
 )

@@ -1,0 +1,32 @@
+load data
+Characterset UTF8
+infile 'C004H101110102001-XDZCZR-20191031.txt'
+append into table XDZCZR
+fields terminated by '^A'
+trailing nullcols
+(
+ZRHTH ,
+YXJGDM ,
+JRXKZH ,
+NBJGH ,
+MXKMBH ,
+MXKMMC ,
+JYDSBH ,
+JYDSMC ,
+XDJYLX ,
+JYZCLX ,
+BZ ,
+ZRDKBJZE ,
+ZRDKLXZE ,
+ZRSXF ,
+ZRZJ ,
+HGLL ,
+ZRJGRQ ,
+HGJZRQ ,
+ZRHTQSRQ ,
+ZRHTDQRQ ,
+JYDSZZH ,
+JYDSZZZHHM ,
+JYDSXH ,
+CJRQ 
+)

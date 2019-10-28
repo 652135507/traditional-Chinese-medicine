@@ -1,11 +1,11 @@
 load data
 Characterset UTF8
-infile 'C004H101110102001-JJKXX-20191031.txt'
-append into table JJKXX
+infile 'C004H101110102001-CZXX-20191031.txt'
+append into table CZXX
 fields terminated by '^A'
 trailing nullcols
 (
-KH ,
+CZH ,
 HQCKZH ,
 KHTYBH ,
 YXJGDM ,
@@ -13,10 +13,10 @@ JRXKZH ,
 NBJGH ,
 ZJLB ,
 ZJHM ,
-JJKCPMC ,
-KPZT ,
+CZLX ,
+CZZT ,
 YGBZ ,
-KKRQ ,
-KKGYH ,
+QYRQ ,
+QYGYH ,
 CJRQ 
 )

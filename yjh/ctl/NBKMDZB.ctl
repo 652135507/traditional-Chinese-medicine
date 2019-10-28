@@ -5,29 +5,12 @@ append into table NBKMDZB
 fields terminated by '^A'
 trailing nullcols
 (
-JRXKZH,
-YHJGDM,
-NBJGH,
-YHJGMC,
-KMBH,
-KMMC,
-KMJC,
-KMLX,
-QCJFYE,
-QCDFYE,
-JFFSE,
-DFFSE,
-QMJFYE,
-QMDFYE,
-BZ,
-KJRQ,
-BSZQ,
-KMBH,
-KMMC,
-KJKMJC,
-SJKMBH,
-SJKMMC,
-GSYWDL,
-GSYWZL,
-CJRQ
+KMBH ,
+KMMC ,
+KJKMJC ,
+SJKMBH ,
+SJKMMC ,
+GSYWDL ,
+GSYWZL ,
+CJRQ 
 )
