@@ -92,19 +92,19 @@ def fuc_char(fld):
         tmp = fld[3:]
     else:
         tmp = fld[1:]
-    return r'varchar2('+tmp+r')'
+    return r'varchar2('+tmp+r')',tmp
     
 def fuc_double(fld):
     #print('i am double')
-    return(r'decimal(16,2)')
+    return(r'decimal(16,2)','')
     
 def fuc_int(fld):
     #print('i am int')
-    return(r'integer')
+    return(r'integer','')
 
 def fuc_def(fld):
     #print('i am def')
-    return('error')
+    return('error','')
     
 def func_zdlx(fld):
     return switch.get(fld[0],'fuc_def')(fld)
@@ -117,10 +117,10 @@ switch = {
     
 def write_sql(**dd):
     switch_fld = {
-        1:lambda x:x+r' ',
+        1:lambda x:[x+r' ',''],
         2:func_zdlx,
-        0:lambda x:r', /*' +x +r'*/',
-        3:lambda x:' ' if (x.find('PK') == -1) else r' not null ' ,
+        0:lambda x:[r', /*' +x +r'*/',''],
+        3:lambda x:[' ' if (x.find('PK') == -1) else r' not null ' ,''],
         4:lambda x:r' /*' +x +r'*/'
     }
     with open(file_w,'w',encoding='utf-8') as ftb:
@@ -145,10 +145,10 @@ def write_sql(**dd):
                     ftb.write(sqlDict['zdmc']+' '+sqlDict['zdlx']+' '+sqlDict['zdPK']+' '+sqlDict['zdsm']+'\n'+r');'+'\n')
                     #sqlDict = dict.fromkeys(sqlSeq, ' ')
                 else:
-                    str1 = switch_fld.get((index+1)%4,'0')(x)
+                    str1,str2 = switch_fld.get((index+1)%4,'0')(x)
+                    #print(str1+':'+str2)
                     if ( (index+1)%4 ==1 ) :
                         sqlDict['zdmc'] = str1
-                        ctlArray.append(sqlDict['zdmc'])
                     elif (index+1)%4 == 0 :
                         sqlDict['zdsm'] = str1
                         ftb.write(sqlDict['zdmc']+' '+sqlDict['zdlx']+' '+
@@ -161,6 +161,11 @@ def write_sql(**dd):
                             indexArray.append(sqlDict['zdmc'])
                     else :
                         sqlDict['zdlx'] = str1
+                        if( len(str2)>=1 and int(str2) >= 1000 ) :
+                            ctlArray.append(
+                                sqlDict['zdmc']+r' char(100000) "substr(:'+sqlDict['zdmc']+r',1,'+str2+r')" ')
+                        else :
+                            ctlArray.append(sqlDict['zdmc'])
             #create index   
             if indexArray :
                 str2 = 'create index '+k+'_idx0'+' on '+k+r'('
@@ -204,5 +209,5 @@ if __name__ == '__main__':
     # 读取Excel
     tb_dict={}
     tb_dict=read_excel()
-    print(tb_dict)
+    #print(tb_dict)
     write_sql(**tb_dict)
