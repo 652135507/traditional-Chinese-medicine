@@ -9,7 +9,6 @@ import argparse
 '''
 
 def main() :
-    import argparse
     parser = argparse.ArgumentParser(description='manual to this script')
     parser.add_argument('--gpus', type=str, default=None)
     parser.add_argument('--batch-size', type=int, default=32)
@@ -17,7 +16,6 @@ def main() :
     print args.gpus
     print args.batch_size
 
-    parser = argparse.ArgumentParser()
     parser.add_argument("square", type=int,
                         help="display a square of a given number")
     parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2],
