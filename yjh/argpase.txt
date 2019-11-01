@@ -1,0 +1,496 @@
+
+返回主页	
+吱吱吱 (piperck) XD
+Be more cautious.
+github.com/piperck      weibo.com/pieprck
+
+    博客园
+    首页
+    新随笔
+    联系
+    订阅
+    管理
+
+Python 命令行工具 argparse 模块使用详解
+
+先来介绍一把最基本的用法
+
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.parse_args()
+
+在执行 parse_args() 之前，所有追加到命令行的参数都不会生效，生效了之后的默认情况类似于这样：
+
+ 
+
+设置默认参数函数：
+复制代码
+
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("echo")
+args = parser.parse_args()
+print args.echo
+
+复制代码
+
+当我们需要设置一个默认参数使用的时候，我们可以这么做达到的效果是这样的：
+
+ 第二行是我直接打印 print args 的效果。可以看到是一个 Namespace 对象。
+
+当我直接输入 -h 参数的时候可以看到命令行会提示我们 positional arguments 是 echo 是必填。
+
+ 
+
+下面继续来定义可选参数
+复制代码
+
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", "--verbosity", help="increase output verbosity")
+args = parser.parse_args()
+if args.verbosity:
+    print "verbosity turned on"
+
+复制代码
+
+我们看到的效果是这样的：
+
+可见，如果用省略方法 -v 赋值的方法，最终会到达 --verbosity 值会传递到这个完整的参数中去。这里值得一提的是，如果没有后面的 --verbosity 只有 -v 的话，那么值会可以通过 args.v 得到。
+
+ 
+
+当然也有可以不指定值的方法，可以让此值直接默认设置为 bool 值，而使用 action='store_true' 可以做到
+复制代码
+
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", "--verbosity", help="increase output verbosity", action="store_true")
+args = parser.parse_args()
+print args.verbosity
+
+复制代码
+
+获得的效果如下。
+
+ 
+
+常规用法大致介绍了一把。下面我们来看下具体的函数都做了哪些工作。
+
+可以注意到我们每次都会去初始化一把 ArgumentParser类，他的初始化定义如下：
+复制代码
+
+class ArgumentParser(_AttributeHolder, _ActionsContainer):
+    """Object for parsing command line strings into Python objects.
+
+    Keyword Arguments:
+        - prog -- The name of the program (default: sys.argv[0])
+        - usage -- A usage message (default: auto-generated from arguments)
+        - description -- A description of what the program does
+        - epilog -- Text following the argument descriptions
+        - parents -- Parsers whose arguments should be copied into this one
+        - formatter_class -- HelpFormatter class for printing help messages
+        - prefix_chars -- Characters that prefix optional arguments
+        - fromfile_prefix_chars -- Characters that prefix files containing
+            additional arguments
+        - argument_default -- The default value for all arguments
+        - conflict_handler -- String indicating how to handle conflicts
+        - add_help -- Add a -h/-help option
+    """
+
+    def __init__(self,
+                 prog=None,
+                 usage=None,
+                 description=None,
+                 epilog=None,
+                 version=None,
+                 parents=[],
+                 formatter_class=HelpFormatter,
+                 prefix_chars='-',
+                 fromfile_prefix_chars=None,
+                 argument_default=None,
+                 conflict_handler='error',
+                 add_help=True):
+
+    prog - 程序的名字（默认：sys.argv[0]）
+    usage - 描述程序用法的字符串（默认：从解析器的参数生成）
+    description - 参数帮助信息之前的文本（默认：空）
+    epilog - 参数帮助信息之后的文本（默认：空）
+    parents - ArgumentParser 对象的一个列表，这些对象的参数应该包括进去
+    formatter_class - 定制化帮助信息的类
+    prefix_chars - 可选参数的前缀字符集（默认：‘-‘）
+    fromfile_prefix_chars - 额外的参数应该读取的文件的前缀字符集（默认：None）
+    argument_default - 参数的全局默认值（默认：None）
+    conflict_handler - 解决冲突的可选参数的策略（通常没有必要）
+    add_help - 给解析器添加-h/–help 选项（默认：True）
+
+复制代码
+
+ 
+
+我们可以来看下常用必填参数都加上的效果
+复制代码
+
+# coding: utf-8
+import argparse
+
+x = argparse.ArgumentParser(prog='It\'s a cool job!',
+                            usage='正常使用我就可以了',
+                            description='那你说个毛',
+                            epilog='我是 EPILOG')
+x.add_argument('-v', help='gg 斯密达')
+x.parse_args()
+
+复制代码
+
+值得注意的一点是，当我使用了 usage 的参数之后，他似乎在同样的位置覆盖了 prog 参数里面的值。
+
+其他几个设置比较少用到，如果要使用可以查询 refrence 1 里面的文档。也可直接访问官方文档查看用法。
+
+ 
+
+下面重点说下 ArgumentParser.add_argument。不知道在 python 的哪个版本，标准库调整了这个地方。目前在标准库里面看到的情况是这样的：
+复制代码
+
+def add_argument(self, *args, **kwargs):
+    """
+    add_argument(dest, ..., name=value, ...)
+    add_argument(option_string, option_string, ..., name=value, ...)
+    """
+
+    # if no positional args are supplied or only one is supplied and
+    # it doesn't look like an option string, parse a positional
+    # argument
+
+复制代码
+
+查阅之前的文档应该是这样：
+复制代码
+
+ArgumentParser.add_argument(name or flags...[, action][, nargs][, const][, default][, type][, choices][, required][, help][, metavar][, dest])
+定义应该如何解析一个命令行参数。下面每个参数有它们自己详细的描述，简单地讲它们是：
+
+name or flags - 选项字符串的名字或者列表，例如foo 或者-f, --foo。
+action - 在命令行遇到该参数时采取的基本动作类型。
+nargs - 应该读取的命令行参数数目。
+const - 某些action和nargs选项要求的常数值。
+default - 如果命令行中没有出现该参数时的默认值。
+type - 命令行参数应该被转换成的类型。
+choices - 参数可允许的值的一个容器。
+required - 该命令行选项是否可以省略（只针对可选参数）。
+help - 参数的简短描述。
+metavar - 参数在帮助信息中的名字。
+dest - 给parse_args()返回的对象要添加的属性名称。
+
+复制代码
+
+我们按照以前的参数来介绍一下，因为我测试了一把用法上都没有改变。我目前的 python 版本是2.7.13。 add_argument 方法也被放进了父类 _ActionsContainer 中。
+
+ 
+
+name or flags: 这个就是我们可以直接写名字，如果直接写名字这就是一个必填参数，例子可以参考上面的例子。如果是 flags 就要带上 - 或者 -- 。这个 argparse 模块会帮我们自动解析。
+
+ 
+
+action: 这个参数算是一个重头戏而且可以继承 argparse.Action 定制自己的 action 。先介绍几个这个参数常用的变量：
+
+        'store' - 只是保存参数的值。这是默认的动作。例如：
+        >>>
+
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--foo')
+        >>> parser.parse_args('--foo 1'.split())
+        Namespace(foo='1')
+
+        'store_const' - 保存由const关键字参数指出的值。（注意const关键字参数默认是几乎没有帮助的None。）'store_const'动作最常用于指定某种标记的可选参数。例如：
+        >>>
+
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--foo', action='store_const', const=42)
+        >>> parser.parse_args('--foo'.split())
+        Namespace(foo=42)
+
+        'store_true'和'store_false' - 它们是'store_const' 的特殊情形，分别用于保存值True和False。另外，它们分别会创建默认值False 和True。例如：
+        >>>
+
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--foo', action='store_true')
+        >>> parser.add_argument('--bar', action='store_false')
+        >>> parser.add_argument('--baz', action='store_false')
+        >>> parser.parse_args('--foo --bar'.split())
+        Namespace(bar=False, baz=True, foo=True)
+
+        'append' - 保存一个列表，并将每个参数值附加在列表的后面。这对于允许指定多次的选项很有帮助。示例用法：
+        >>>
+
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--foo', action='append')
+        >>> parser.parse_args('--foo 1 --foo 2'.split())
+        Namespace(foo=['1', '2'])
+
+        'append_const' - 保存一个列表，并将const关键字参数指出的值附加在列表的后面。（注意const关键字参数默认是None。）'append_const' 动作在多个参数需要保存常量到相同的列表时特别有用。例如：
+        >>>
+
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--str', dest='types', action='append_const', const=str)
+        >>> parser.add_argument('--int', dest='types', action='append_const', const=int)
+        >>> parser.parse_args('--str --int'.split())
+        Namespace(types=[<type 'str'>, <type 'int'>])
+
+        'count' - 计算关键字参数出现的次数。例如，这可用于增加详细的级别：
+        >>>
+
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--verbose', '-v', action='count')
+        >>> parser.parse_args('-vvv'.split())
+        Namespace(verbose=3)
+
+        'help' - 打印当前解析器中所有选项的完整的帮助信息然后退出。默认情况下，help动作会自动添加到解析器中。参见ArgumentParser以得到如何生成输出信息。
+
+        'version' - 它期待version=参数出现在add_argument()调用中，在调用时打印出版本信息并退出：
+        >>>
+
+        >>> import argparse
+        >>> parser = argparse.ArgumentParser(prog='PROG')
+        >>> parser.add_argument('--version', action='version', version='%(prog)s 2.0')
+        >>> parser.parse_args(['--version'])
+        PROG 2.0
+
+以上全部摘自官方文档。
+
+ 
+
+下面让我来尝试一把自定义 action 的实现。自定义 action 方法需要继承自 argparse.Action 类 并且实现一个 __call__ 方法。 __call__ 方法需要定义四个参数变量:
+
+        parser - 包含该动作的ArgumentParser对象。
+        namespace - parse_args()返回的Namespace对象。大部分动作会给该对象添加一个属性。
+        values - 相关联的命令行参数于类型转换之后的值。（类型转换方式通过add_argument()的type关键字参数指定。）
+        option_string - 调用该动作的选项字符串。option_string参数是可选的，如果动作关联的位置参数将不会出现。
+
+ 这里有个事例简单的易懂我直接上代码了：
+复制代码
+
+>>> class FooAction(argparse.Action):
+...     def __call__(self, parser, namespace, values, option_string=None):
+...         print '%r %r %r' % (namespace, values, option_string)
+...         setattr(namespace, self.dest, values)
+...
+>>> parser = argparse.ArgumentParser()
+>>> parser.add_argument('--foo', action=FooAction)
+>>> parser.add_argument('bar', action=FooAction)
+>>> args = parser.parse_args('1 --foo 2'.split())
+Namespace(bar=None, foo=None) '1' None
+Namespace(bar='1', foo=None) '2' '--foo'
+>>> args
+Namespace(bar='1', foo='2')
+
+复制代码
+
+可以直接看到打印的那一行，当我们在执行完 parse_args 的时候，执行到了 print '%r %r %r' % (namespace, values, option_string) 所以打印了出来。
+
+可以看到 namespace 参数是一个 namespace 对象，values 就是给定的值， option_string  如果有可选参数就会加入进这个，如果没有则为 None。
+
+ 那么有人会问， 那 parser 这个参数呢，这个参数经过我的测试就是 .add_argument 之前的那个对象，一模一样，会被传递进去。知道了这些，就可以基于这些知识对 action 这个方法做一些魔改了。这里就不展开了，根据需求定制即可。
+
+ 
+
+nargs：这个入参可以设置一个 参数后面可以接收几个值，而且提供了类似于正则的符号来通配一些行为。
+
+    ArgumentParser对象通常将一个动作与一个命令行参数关联。nargs关键字参数将一个动作与不同数目的命令行参数关联在一起。它支持的值有：
+
+        N（一个整数）。命令行中的N个参数将被一起收集在一个列表中。例如：
+        >>>
+
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--foo', nargs=2)
+        >>> parser.add_argument('bar', nargs=1)
+        >>> parser.parse_args('c --foo a b'.split())
+        Namespace(bar=['c'], foo=['a', 'b'])
+
+        注意nargs=1生成一个只有一个元素的列表。这和默认的行为是不一样的，默认情况下生成的是元素自己。
+
+        '?'。如果有的话就从命令行读取一个参数并生成一个元素。如果没有对应的命令行参数，则产生一个来自default的值。注意，对于可选参数，有另外一种情况 - 有选项字符串但是后面没有跟随命令行参数。在这种情况下，将生成一个来自const的值。用一些例子加以解释：
+        >>>
+
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--foo', nargs='?', const='c', default='d')
+        >>> parser.add_argument('bar', nargs='?', default='d')
+        >>> parser.parse_args('XX --foo YY'.split())
+        Namespace(bar='XX', foo='YY')
+        >>> parser.parse_args('XX --foo'.split())
+        Namespace(bar='XX', foo='c')
+        >>> parser.parse_args(''.split())
+        Namespace(bar='d', foo='d')
+
+        nargs='?'的一种更常见的用法是允许可选的输入和输出文件：
+        >>>
+
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('infile', nargs='?', type=argparse.FileType('r'),
+        ...                     default=sys.stdin)
+        >>> parser.add_argument('outfile', nargs='?', type=argparse.FileType('w'),
+        ...                     default=sys.stdout)
+        >>> parser.parse_args(['input.txt', 'output.txt'])
+        Namespace(infile=<open file 'input.txt', mode 'r' at 0x...>,
+                  outfile=<open file 'output.txt', mode 'w' at 0x...>)
+        >>> parser.parse_args([])
+        Namespace(infile=<open file '<stdin>', mode 'r' at 0x...>,
+                  outfile=<open file '<stdout>', mode 'w' at 0x...>)
+
+        '*'。出现的所有命令行参数都被收集到一个列表中。注意，一般情况下具有多个带有nargs='*'的位置参数是不合理的，但是多个带有nargs='*'的可选参数是可能的。例如：
+        >>>
+
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--foo', nargs='*')
+        >>> parser.add_argument('--bar', nargs='*')
+        >>> parser.add_argument('baz', nargs='*')
+        >>> parser.parse_args('a b --foo x y --bar 1 2'.split())
+        Namespace(bar=['1', '2'], baz=['a', 'b'], foo=['x', 'y'])
+
+        '+'。和'*'一样，出现的所有命令行参数都被收集到一个列表中。除此之外，如果没有至少出现一个命令行参数将会产生一个错误信息。例如：
+        >>>
+
+        >>> parser = argparse.ArgumentParser(prog='PROG')
+        >>> parser.add_argument('foo', nargs='+')
+        >>> parser.parse_args('a b'.split())
+        Namespace(foo=['a', 'b'])
+        >>> parser.parse_args(''.split())
+        usage: PROG [-h] foo [foo ...]
+        PROG: error: too few arguments
+
+        argparse.REMAINDER.所有剩余的命令行参数都被收集到一个列表中。这通常用于命令行工具分发命令到其它命令行工具：
+        >>>
+
+        >>> parser = argparse.ArgumentParser(prog='PROG')
+        >>> parser.add_argument('--foo')
+        >>> parser.add_argument('command')
+        >>> parser.add_argument('args', nargs=argparse.REMAINDER)
+        >>> print parser.parse_args('--foo B cmd --arg1 XX ZZ'.split())
+        Namespace(args=['--arg1', 'XX', 'ZZ'], command='cmd', foo='B')
+
+    如果没有提供nargs关键字参数，读取的参数个数取决于action。通常这意味着将读取一个命令行参数并产生一个元素（不是一个列表）。
+
+ 
+
+const: const 参数在某些特定的 action 上面已经介绍到了会被使用，还有就是 nargs 是 '?' 的时候会优先使用 const 里面的值。
+
+ 
+
+default:  对于参数，default的值用于选项字符串没有出现在命令行中的时候。
+
+ 
+
+type: 可以设置传入参数要求的类型。
+
+ 
+
+choices: 可以设置填入的参数在 choices 指定的范围内。
+
+ 
+
+require: 有此参数，如果传入的时候没有将报出一个错误。
+
+ 
+
+help: 填写该参数背后的一些帮助信息。
+
+ 
+
+metavar 和 dst 放在一起说吧：
+
+    当ArgumentParser生成帮助信息时，它需要以某种方式引用每一个参数。 默认情况下，ArgumentParser对象使用dest的值作为每个对象的“名字”。默认情况下，对于位置参数直接使用dest的值，对于可选参数则将dest的值变为大写。所以，位置参数dest='bar'将引用成bar。后面带有一个命令行参数的可选参数--foo将引用成FOO。一个例子：
+    >>>
+
+    >>> parser = argparse.ArgumentParser()
+    >>> parser.add_argument('--foo')
+    >>> parser.add_argument('bar')
+    >>> parser.parse_args('X --foo Y'.split())
+    Namespace(bar='X', foo='Y')
+    >>> parser.print_help()
+    usage:  [-h] [--foo FOO] bar
+
+    positional arguments:
+     bar
+
+    optional arguments:
+     -h, --help  show this help message and exit
+     --foo FOO
+
+    可以用metavar指定另外一个名字：
+    >>>
+
+    >>> parser = argparse.ArgumentParser()
+    >>> parser.add_argument('--foo', metavar='YYY')
+    >>> parser.add_argument('bar', metavar='XXX')
+    >>> parser.parse_args('X --foo Y'.split())
+    Namespace(bar='X', foo='Y')
+    >>> parser.print_help()
+    usage:  [-h] [--foo YYY] XXX
+
+    positional arguments:
+     XXX
+
+    optional arguments:
+     -h, --help  show this help message and exit
+     --foo YYY
+
+    注意metavar只会改变显示出来的名字 - parse_args() 对象中属性的名字仍然由dest的值决定。
+
+    nargs的不同值可能导致metavar使用多次。传递一个列表给metavar将给每个参数指定一个不同的显示名字：
+    >>>
+
+    >>> parser = argparse.ArgumentParser(prog='PROG')
+    >>> parser.add_argument('-x', nargs=2)
+    >>> parser.add_argument('--foo', nargs=2, metavar=('bar', 'baz'))
+    >>> parser.print_help()
+    usage: PROG [-h] [-x X X] [--foo bar baz]
+
+    optional arguments:
+     -h, --help     show this help message and exit
+     -x X X
+     --foo bar baz
+
+    大部分ArgumentParser动作给parse_args()返回对象的某个属性添加某些值。该属性的名字由add_argument()的dest关键字参数决定。对于位置参数的动作，dest 通常作为第一个参数提供给add_argument()：
+    >>>
+
+    >>> parser = argparse.ArgumentParser()
+    >>> parser.add_argument('bar')
+    >>> parser.parse_args('XXX'.split())
+    Namespace(bar='XXX')
+
+    对于可选参数的动作，dest的动作通常从选项字符串推导出来。ArgumentParser生成的dest的值是将第一长的选项字符串前面的--字符串去掉。如果没有提供长选项字符串，dest的获得则是将第一个短选项字符串前面的-字符去掉。任何内部的-将被转换为_字符以确保字符串是合法的属性名字。下面的实例解释了这个行为：
+    >>>
+
+    >>> parser = argparse.ArgumentParser()
+    >>> parser.add_argument('-f', '--foo-bar', '--foo')
+    >>> parser.add_argument('-x', '-y')
+    >>> parser.parse_args('-f 1 -x 2'.split())
+    Namespace(foo_bar='1', x='2')
+    >>> parser.parse_args('--foo 1 -y 2'.split())
+    Namespace(foo_bar='1', x='2')
+
+    dest允许提供自定义的属性名：
+    >>>
+
+    >>> parser = argparse.ArgumentParser()
+    >>> parser.add_argument('--foo', dest='bar')
+    >>> parser.parse_args('--foo XXX'.split())
+    Namespace(bar='XXX')
+
+ 
+
+ 
+
+Reference:
+
+https://www.jianshu.com/p/fef2d215b91d  python argparse用法总结
+
+http://python.usyiyi.cn/translate/python_278/library/argparse.html  argparse官方文档翻译

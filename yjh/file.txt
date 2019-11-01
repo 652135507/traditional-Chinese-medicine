@@ -1,0 +1,744 @@
+
+	
+Python(2.7)-文件操作(file)
+3.1文件操作（files）
+
+              Python提供了必要的函数和方法进行默认情况下的文件基本操作。你可以用file对象做大部分的文件操作       
+3.1.1打开文件
+3.1.1.1 open()
+
+            Python内置了一个打开文件的函数open(),用来打开一个文件，创建一个file对象，然后你就可以对该打开的文件做任何你想做的操作
+
+            fp=open(file_name[,access_mode][,buffering]):file_name变量是一个包含了你要访问的文件路径及文件名称的字符串值，access_mode:决定了打开文件的模式，是只读、写入、追加等等。这是个非强制参数，默认文件访问模式为只读（r）；buffering也是一个非强制性参数，如果buffering的值被设置为0，就不会有缓存；如果值为1，访问文件时会有缓存行；如果值为大于1的整数，表明了这就是寄存区的缓冲大小，如果取负数值，寄存区的缓存大小则为系统默认。
+
+            如果以只读（r）模式打开一个不存在的文件，会报IOError异常，如果是以写或者追加模式打开一个不存在的文件，默认会创建该文件，如果所在路径中有目录不存在，也会报IOError异常
+
+代码示例：在d盘目录下打开/创建一个newfile.txt文本文件，并写入goodmorning，然后关闭文件
+
+>>> fp=open("d:\\newfile.txt","w") #以写的方式打开文件
+
+>>> fp.write("goodmorning")    #写入内容
+
+>>> fp.close()              关闭文件#
+
+>>> 
+
+执行结果：
+
+ 
+
+代码示例2：将刚刚写入的文件内容读取出来
+
+>>> fp=open("d:\\newfile.txt","r")    #以只读的方式打开文件
+
+>>> print fp.readline()               #读出内容 
+
+goodmorning
+
+>>> fp.close()                   #关闭文件
+
+>>> 
+
+ 
+3.1.1.2 with open(file_name[,access_mode])
+
+         with open(file_name[,access_mode]):与open用法基本一致，区别在于用with方法打开文件，会默认关闭文件
+
+>>> with open("d:\\newfile.txt") as fp:
+
+...     for line in fp:
+
+...         print line
+
+...
+
+3.1.2 文件操作模式
+       r:只读，文件的指针会放在文件的开头，从开头开始读取文件内容，这是文件的默认打开方式
+       w:覆盖式写入，如果文件存在，则将文件中的全部内容清空然后写入，如果文件不存在，创建文件
+       a:追加式写入，从文件的末尾开始写入，如果文件不存在，创建文件
+
+       文件对象：一个文件被打开后，你就会得到一个file对象，然后就可以得到有关该文件的各种信息。
+>>> fp=open("d:\\newfile.txt","r")
+>>> fp.closed      #如果文件已经关闭，返回TRUE，否则返回False
+False
+>>> fp.mode      #返回被打开文件的访问模式
+'r'
+>>> fp.name      #返回文件的名称
+'d:\\newfile.txt'
+>>> fp.softspace   #末尾是否强制加空格     
+0
+>>> fp.close()
+>>> fp.closed
+True
+ 
+3.1.3 文件常用操作方法
+3.1.3.1 fp.read([size])
+
+       fp.read([size]):size为读取的长度，以byte为单位，如果不指定参数，表示一次性读取全部内容，以字符串形式返回，并且每一行结尾会有一个”\n”符号
+
+>>> fp=open("d:\\newfile.txt","r")
+
+>>> content=fp.read(5)
+
+>>> print content
+
+goodm
+
+>>> fp.close()
+
+>>> 
+
+ 
+
+ 
+3.1.3.2 fp.readline([size])
+
+ 
+
+　　fp.readline([size]):只读取一行，size为读取的长度，以byte为单位，如果给定了size，有可能返回的只是一行的一部分，如果不指定参数，表示一次性读取一行，以字符串形式返回，结尾会有一个”\n”符号，读完一行，文件操作标记移动到下一行的开头，下次读取时，从下一行的开头开始
+
+示例：按行读取，每读取一行，都会有一个/n符号
+
+>>> fp=open("d:\\newfile.txt","r")
+
+>>> for i in range(3):
+
+...     a=fp.readline()
+
+...     print a
+
+...
+
+goodmornin
+
+ 
+
+my name is pangwei
+
+ 
+
+one two three fore five six
+
+>>> fp.close()
+
+>>> 
+
+ 
+
+示例：按长度读取，一行读完之后/n符号会独占一行，之后会再换一行
+
+ 
+
+>>> fp=open("d:\\newfile.txt","r")
+
+>>> for i in range(4):
+
+...     a=fp.readline(5)
+
+...     print a
+
+...
+
+goodm
+
+ornin
+
+ 
+
+ 
+
+my na
+
+>>> fp.close()
+
+>>> 
+
+ 
+3.1.3.3 fp.readlines([size])
+
+　　fp.readlines([size]):把文件的每一行作为一个list的元素，是一个结尾有\n的字符串，如果指定了size参数，表示读取文件指定内容的长度，此时就有可能只能读取文件的一部分
+
+>>> fp=open("d:\\newfile.txt","r")
+
+>>> a=fp.readlines()
+
+>>> print a
+
+['goodmornin\n', 'my name is pangwei\n', 'one two three fore five six']
+
+>>> for i in a:
+
+...     print i
+
+...
+
+goodmornin
+
+ 
+
+my name is pangwei
+
+ 
+
+one two three fore five six
+
+>>> 
+
+ 
+3.1.3.4 fp.write(str)
+
+　　fp.write(str)：把str写入到文件中，默认是不加换行符的，换行需要手动加入换行符”\n”.
+
+>>> fp=open("d:\\newfile.txt","w")
+
+>>> fp.write("pangwei is a sunny big boy"+"\n")
+
+>>> fp.close()                 
+
+>>>             
+
+ 
+
+ 
+
+　　fp.writelines(seq)：把序列seq的内容全部写入到文件中（多行一次性写入）。不会自动加入换行符；注意：seq中的内容也必须是字符串类型的数据，才能成功写入文件
+
+>>> seq=["pangwei\n","is\n","a\n","boy\n","测试文件"]
+
+>>> fp=open("d:\\newfile.txt","w")
+
+>>> fp.writelines(seq)
+
+>>> fp.close()
+
+>>> 
+
+ 
+
+ 
+
+　　fp.close()：文件对象的close()方法刷新缓冲区里任何还没有写入的信息，并关闭该文件。用close关闭文件是一个很好的习惯，文件关闭之后不能再对文件进行操作，但是如果文件不及时关闭，有可能产生句柄泄露，丢失数据
+
+ 
+
+　　fp.flush()：此函数将缓冲区中的内容写入硬盘
+
+　　fp.next()：返回文件的下一行内容，并将文件操作标记位移动到下一行，把一个文件(flie)用for i in file这样的循环遍历语句时，就是调用next()函数来实现。
+
+>>> fp=open("d:\\newfile.txt","r")
+
+>>> fp.next()
+
+'pangwei\n'
+
+>>> fp.next()
+
+'is\n'
+
+>>> fp.close()
+
+>>> 
+
+ 
+
+　　fp.tell()：返回文件操作标记的当前位置，以文件开头为基准点
+
+>>> fp=open("d:\\newfile.txt","r")
+
+>>> fp.tell()
+
+0L
+
+>>> fp.readline()
+
+'pangwei\n'
+
+>>> fp.tell()
+
+9L
+
+>>> fp.readline()
+
+'is\n'
+
+>>> fp.tell()
+
+13L
+
+>>>fp.close()
+
+>>> 
+
+ 
+
+　　fp.seek(offset[,from]):这是一个文件定位函数，该方法改变当前文件的位置。offset变量表示要移动的字节数，from遍历指定开始移动字节的参考位置。如果from被设置为0（默认值），意味着将文件开头作为移动字节的参考位置；1表示使用当前位置作为参考位置；2表示使用文件的末尾作为参考位置。注意：如果使用a或者a+的模式打开文件，文件的标记会自动返回到文件末尾
+
+ 
+
+>>> fp=open("d:\\newfile.txt","r")
+
+>>> fp.readline()
+
+'pangwei\n'
+
+>>> fp.seek(0,0)
+
+>>> fp.readline()
+
+'pangwei\n'
+
+>>> fp.readline()
+
+'is\n'
+
+>>> fp.close()
+
+>>> 
+
+ 
+
+　　fp.truncate([size]):把文件裁成规定的大小，默认的是裁到当前文件操作标记的位置，如果size比文件的大小还要大，根据系统的不同可能是不改变文件，也可能是用0把文件补到相应的大小，也可能是以一些随机的内容加上去。
+
+>>> fp=open("d:\\newfile.txt","r+")
+
+>>> fp.readline()  #读出了文件第一行的内容
+
+'pangwei\n'
+
+>>> fp.truncate()    #从当前位置（第二行开头）开始裁，后边的内容全部裁掉了
+
+>>> fp.readline()  #读取到后边的内容为空
+
+''
+
+>>> fp.close()
+
+>>>
+
+ 
+
+ 
+3.1.3 linecache模块
+
+       linecache模块允许从任何文件里得到任何的行，并且使用缓存进行优化，常见的情况是从单个文件读取多行。
+
+       linecache.getlines(file_name):读出文件中所有的行，输出为列表格式，每一行作为一个元素，以linenum-1为元素索引位置存储
+
+ 
+
+代码示例1：绝对路径读取文件内容
+
+>>> import linecache
+
+>>> linecache.getlines("d:\\newfile.txt")
+
+['pangwei\n', '\n', 'pangwei is a boy\n', 'hello world!\n']
+
+ 
+
+代码示例2：相对路径读取文件内容
+
+>>> import linecache
+
+>>> import os
+
+>>> os.chdir("d:\\")
+
+>>> os.getcwd()
+
+'d:\\'
+
+>>> linecache.getlines("newfile.txt")
+
+['pangwei\n', '\n', 'pangwei is a boy\n', 'hello world!\n']
+
+>>> 
+
+ 
+
+    linecache.getline(file_name,lineno):读出文件中第lineno行；这个函数不会抛出异常，如果产生错误，他将返回’’(换行符将会包含在找到的行里)
+
+>>> import linecache
+
+>>> linecache.getline("newfile.txt",5)
+
+''
+
+>>> linecache.getline("newfile.txt",4)
+
+'hello world!\n'
+
+>>> 
+
+ 
+
+    linecache.clearcache([file_name]):清除缓存，file_name是一个非强制参数，表示清除指定文件的缓存
+
+    linecache.checkcache([file_name]):检查缓存的有效性，如果在缓存中的文件在硬盘上发生了变化，并且你需要更新版本，是一个非强制参数，不传递此参数，将检查缓存里的所有条目
+
+    linecache.updatecache([file_name]):更新缓存，如果file_name文件更新了，使用这个函数可以更新linecache.getlines(file_name)返回的列表，如果出错，则返回空列表
+
+ 
+
+练习：删除文件中的空行
+
+#encoding=utf-8
+
+import os
+
+def DelBlankLine(infile,outfile):
+
+    infp=open(infile, "r")
+
+    outfp=open(outfile, "w")
+
+    lines =infp.readlines()
+
+    for i in lines:
+
+        if i=='\n':  #不同操作系统下换行符可能会有不同
+
+            print u"此行是空行"
+
+        if i.split():   #去除纯空格或者其他不可见字符的行
+
+            outfp.write(i)
+
+    infp.close()
+
+    outfp.close()
+
+#print DelBlankLine("d:\\newfile.txt","d:\\newfile1.txt")
+
+ 
+3.1.4 cPickle模块（序列化）
+
+         Python提供一个标准的模块，称为pickle，cPickle模块的功能和pickle模块完全相同，只不过它是用C语言编写的，因此要快的多（cPickle比pickle快1000倍）；使用它可以在一个文件中存储任何Python对象，比如列表，字典等，之后你又可以把它完整无缺的取出来，这被称为持久的存储对象（序列化）
+
+#encoding=utf-8
+
+import cPickle as p
+
+shoplist=["apple","banner","mango"]
+
+fp=open("d:\\python\\shoplist.txt","w")
+
+p.dump(shoplist,fp)     #将列表对象dump到文件中
+
+fp.close()
+
+fpout=open("d:\\python\\shoplist.txt","r")
+
+storedlist=p.load(fpout)    #从文件中取出之前的列表
+
+print u"从文件中读取的列表对象:",storedlist
+
+上一篇文章介绍和分析了python2.7中使用print遇到的中文编码问题的原因和解决方案，本篇主要介绍一下python2.7中执行文件读写可能遇到的编码问题。
+
+　　1.文件读取
+
+　　　假如我们读取一个文件，文件保存时，使用的编码格式，决定了我们从文件读取的内容的编码格式，例如，新建一个文本文件test.txt, 编辑内容，保存的时候注意，编码格式设定为gb2312,那么使用python读取文件内容，方式如下：
+
+f = open('test.txt','r')
+s = f.read() #读取文件内容,如果是不识别的encoding格式（识别的encoding类型跟使用的系统有关），这里将读取失败
+'''假设文件保存时以gb2312编码保存'''
+u = s.decode('gb2312') #以文件保存格式对内容进行解码，获得unicode字符串
+'''下面我们就可以对内容进行各种编码的转换了'''
+str = u.encode('utf-8')#转换为utf-8编码的字符串str
+strGbk = u.encode('gbk')#转换为gbk编码的字符串str1
+
+　　注意：1）调用read()函数文件test.txt时，如果test.txt文件中不包含BOM信息(BOM信息一般是3个字节，用于标识文件的编码格式)，
+则系统会使用现在支持的文件编码格式（utf-8，gbk等，优先使用utf-8，最后使用系统默认的编码方式），尝试着读取和解析text.txt，
+如果能打开并解析成功（假设以gbk编码方式能正确打开test.txt），那么s的编码类型gbk 。
+　　　　　2）如果open时使用的encoding和文件本身的encoding不一致的话，那么这里将将会产生错误
+　　　　　3）s的类型为str
+此外，python提供了codecs包，可供进行文件的读取，包中的open()函数可以指定文件编码的类型：
+
+import codecs
+f = codecs.open('text.text','r+',encoding='utf-8')#必须事先知道文件的编码格式，这里文件编码是使用的utf-8
+content = f.read()#如果open时使用的encoding和文件本身的encoding不一致的话，那么这里将将会产生错误
+f.write('你想要写入的信息')
+f.close()
+注意：
+1）必须事先知道文件的编码格式，这里文件编码是使用的utf-8   
+2）如果open时使用的encoding和文件本身的encoding不一致的话，那么这里将将会产生错误
+3） content的类型为unicode。
+
+2.文件写入　
+　　  调用python文件写入函数时，如果待写入变量unStr是unicode类型，则系统首先使用系统的默认编码方式，将unStr变量进行unicode编码成str的类型，然后再写入文件。
+
+unStr=u"测试"
+f = open('test.txt','w')
+f.write(unStr)   #如果系统的默认编码是asii，则会出现UnicodeEncodeError问题
+
+  　　如果系统的默认编码方式是ascii，则就会出现上文中提到的UnicodeEncodeError问题。解决方法有两个：
+
+　　  1) 首先获取文件的默认编码格式，执行write函数前，将unStr编码成文件的默认编码格式，例如：在我的机器上，创建一个新文件时，其文件编码格式为utf-8，
+则修改f.write(unStr) 为f.write(unStr.encoding('utf-8'))。（建议选这一种）
+　　  2) 修改系统的默认编码方式为utf-8；
+      3.　关于sys.setdefaultencoding()和sys.stdout.encoding()
+        1) sys.setdefaultencoding()是str类型编解码时默认使用的编码格式，文件读写、str类型编码，在不明确指定编码格式的情况下均使用 sys.setdefaultencoding()
+　    　#! /usr/bin/env python 
+　    　# -*- coding: utf-8 -*- 
+　　    s = '中文字符'  # 这里的 str 是 str 类型的，而不是 unicode 
+　　    s.encode('gb2312') 
+这句代码将 s 重新编码为 gb2312 的格式，即进行 unicode -> str 的转换。因为 s 本身就是 str 类型的，因此 Python 会自动的先将 s 解码为 unicode ，
+然后再编码成 gb2312。因为解码是python自动进行的，我们没有指明解码方式，python 就会使用 sys.defaultencoding 指明的方式来解码。
+很多情况下 sys.defaultencoding为ANSCII，如果 s 不是这个类型就会出错。
+　　UnicodeDecodeError: 'ascii' codec can't decode byte 0xe4 in position 
+　　0: ordinal not in range(128)
+       2）sys.stdout.encoding() 是终端输出的默认编码格式，例如：print
+　　  至此，python2.7中有关中文编码的相关问题分析及解决已接近尾声，由于笔者水平有限，难免出现错误和不当的地方，希望大家多多指正。
+
+
+
+如果在文件里有汉字，那么使用__builtin__的open read可能会有问题，因为read是以字节为单位，可能造成一个汉字被
+读了一半。除非一次性把文件都读入内存，否则很容易出现这个问题
+
+解决办法：
+
+使用codecs模块：
+
+import codecs
+
+with codecs.open('myfile', encoding='utf-8') as f:
+f.read(1) # 如果是汉字，会整个读进来，而不是以字节为单位；读进来的字符串自动转换成unicode
+
+import codecs
+file=codecs.open("lol.txt","w","utf-8")
+
+Python 文件操作的详解及实例
+
+一、文件操作
+
+1、对文件操作流程
+
+    打开文件，得到文件句柄并赋值给一个变量
+    通过句柄对文件进行操作
+    关闭文件
+
+现有文件如下：
+昨夜寒蛩不住鸣。
+惊回千里梦，已三更。
+起来独自绕阶行。
+人悄悄，帘外月胧明。
+白首为功名，旧山松竹老，阻归程。
+欲将心事付瑶琴。
+知音少，弦断有谁听。
+ 
+f = open('小重山') #打开文件
+data=f.read()#获取文件内容
+f.close() #关闭文件
+
+注意:if in the win，hello文件是utf8保存的，打开文件时open函数是通过操作系统打开的文件，而win操作系统默认的是gbk编码，
+所以直接打开会乱码，需要f=open(‘hello',encoding='utf8')，hello文件如果是gbk保存的，则直接打开即可。
+
+2、文件打开模式　　
+
+Character Meaning
+'r'    open for reading (default)
+'w'    open for writing, truncating the file first
+'x'    create a new file and open it for writing
+'a'    open for writing, appending to the end of the file if it exists
+'b'    binary mode
+'t'    text mode (default)
+'+'    open a disk file for updating (reading and writing)
+'U'    universal newline mode (deprecated)
+
+先介绍三种最基本的模式：
+# f = open('小重山2','w') #打开文件
+# f = open('小重山2','a') #打开文件
+# f.write('莫等闲1\n')
+# f.write('白了少年头2\n')
+# f.write('空悲切!3')
+
+3、文件具体操作
+f = open('小重山') #打开文件
+# data1=f.read()#获取文件内容
+# data2=f.read()#获取文件内容
+#
+# print(data1)
+# print('...',data2)
+# data=f.read(5)#获取文件内容
+ 
+# data=f.readline()
+# data=f.readline()
+# print(f.__iter__().__next__())
+# for i in range(5):
+#   print(f.readline())
+ 
+# data=f.readlines()
+ 
+# for line in f.readlines():
+#   print(line)
+ 
+ 
+# 问题来了:打印所有行,另外第3行后面加上:'end 3'
+# for index,line in enumerate(f.readlines()):
+#   if index==2:
+#     line=''.join([line.strip(),'end 3'])
+#   print(line.strip())
+ 
+#切记:以后我们一定都用下面这种
+# count=0
+# for line in f:
+#   if count==3:
+#     line=''.join([line.strip(),'end 3'])
+#   print(line.strip())
+#   count+=1
+ 
+# print(f.tell())
+# print(f.readline())
+# print(f.tell())#tell对于英文字符就是占一个,中文字符占三个,区分与read()的不同.
+# print(f.read(5))#一个中文占三个字符
+# print(f.tell())
+# f.seek(0)
+# print(f.read(6))#read后不管是中文字符还是英文字符,都统一算一个单位,read(6),此刻就读了6个中文字符
+ 
+#terminal上操作:
+f = open('小重山2','w')
+# f.write('hello \n')
+# f.flush()
+# f.write('world')
+ 
+# 应用:进度条
+# import time,sys
+# for i in range(30):
+#   sys.stdout.write("*")
+#   # sys.stdout.flush()
+#   time.sleep(0.1)
+ 
+# f = open('小重山2','w')
+# f.truncate()#全部截断
+# f.truncate(5)#全部截断
+ 
+# print(f.isatty())
+# print(f.seekable())
+# print(f.readable())
+ 
+f.close() #关闭文件
+
+接下来我们继续扩展文件模式：
+# f = open('小重山2','w') #打开文件
+# f = open('小重山2','a') #打开文件
+# f.write('莫等闲1\n')
+# f.write('白了少年头2\n')
+# f.write('空悲切!3')
+ 
+ 
+# f.close()
+ 
+#r+,w+模式
+# f = open('小重山2','r+') #以读写模式打开文件
+# print(f.read(5))#可读
+# f.write('hello')
+# print('------')
+# print(f.read())
+ 
+ 
+# f = open('小重山2','w+') #以写读模式打开文件
+# print(f.read(5))#什么都没有,因为先格式化了文本
+# f.write('hello alex')
+# print(f.read())#还是read不到
+# f.seek(0)
+# print(f.read())
+ 
+#w+与a+的区别在于是否在开始覆盖整个文件
+ 
+ 
+# ok,重点来了,我要给文本第三行后面加一行内容:'hello 岳飞!'
+# 有同学说,前面不是做过修改了吗? 大哥,刚才是修改内容后print,现在是对文件进行修改!!!
+# f = open('小重山2','r+') #以写读模式打开文件
+# f.readline()
+# f.readline()
+# f.readline()
+# print(f.tell())
+# f.write('hello 岳飞')
+# f.close()
+# 和想的不一样,不管事!那涉及到文件修改怎么办呢?
+ 
+# f_read = open('小重山','r') #以写读模式打开文件
+# f_write = open('小重山_back','w') #以写读模式打开文件
+ 
+# count=0
+# for line in f_read:
+  # if count==3:
+  #   f_write.write('hello,岳飞\n')
+  #
+  # else:
+  #   f_write.write(line)
+ 
+ 
+  # another way:
+  # if count==3:
+  #
+  #   line='hello,岳飞2\n'
+  # f_write.write(line)
+  # count+=1
+ 
+# #二进制模式
+# f = open('小重山2','wb') #以二进制的形式读文件
+# # f = open('小重山2','wb') #以二进制的形式写文件
+# f.write('hello alvin!'.encode())#b'hello alvin!'就是一个二进制格式的数据,只是为了观看,没有显示成010101的形式
+
+注意1: 无论是py2还是py3，在r+模式下都可以等量字节替换，但没有任何意义的！　
+
+注意2：有同学在这里会用readlines得到内容列表，再通过索引对相应内容进行修改，最后将列表重新写会该文件。
+
+这种思路有一个很大的问题，数据若很大，你的内存会受不了的，而我们的方式则可以通过迭代器来优化这个过程。　
+
+补充：rb模式以及seek
+
+在py2中：
+#昨夜寒蛩不住鸣.
+ 
+f = open('test','r',) #以写读模式打开文件
+ 
+f.read(3)
+ 
+# f.seek(3)
+# print f.read(3) # 夜
+ 
+# f.seek(3,1)
+# print f.read(3) # 寒
+ 
+# f.seek(-4,2)
+# print f.read(3) # 鸣
+
+在py3中：
+# test: 
+昨夜寒蛩不住鸣.
+ 
+f = open('test','rb',) #以写读模式打开文件
+ 
+f.read(3)
+ 
+# f.seek(3)
+# print(f.read(3)) # b'\xe5\xa4\x9c'
+ 
+# f.seek(3,1)
+# print(f.read(3)) # b'\xe5\xaf\x92'
+ 
+# f.seek(-4,2)
+# print(f.read(3))  # b'\xe9\xb8\xa3'
+ 
+#总结: 在py3中,如果你想要字符数据,即用于观看的,则用r模式,这样我f.read到的数据是一个经过decode的
+#   unicode数据; 但是如果这个数据我并不需要看,而只是用于传输,比如文件上传,那么我并不需要decode
+#   直接传送bytes就好了,所以这个时候用rb模式.
+ 
+#   在py3中,有一条严格的线区分着bytes和unicode,比如seek的用法,在py2和py3里都是一个个字节的seek,
+#   但在py3里你就必须声明好了f的类型是rb,不允许再模糊.
+ 
+#建议: 以后再读写文件的时候直接用rb模式,需要decode的时候仔显示地去解码.
+
+4、with语句
+
+为了避免打开文件后忘记关闭，可以通过管理上下文，即：
+with open('log','r') as f:
+    pass
+如此方式，当with代码块执行完毕时，内部会自动关闭并释放文件资源。
+
+在Python 2.7 后，with又支持同时对多个文件的上下文进行管理，即：
+with open('log1') as obj1, open('log2') as obj2:
+  pass2
+如有疑问请留言或者到本站社区交流讨论，感谢阅读，希望能帮助到大家，谢谢大家对本站的支持！

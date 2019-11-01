@@ -1,8 +1,8 @@
 load data
 Characterset UTF8
-infile 'C004H101110102001-DKWJXTBD-20191031.txt'
+infile 'C004H101110102001-DKWJXTBD-20190930.txt'
 append into table DKWJXTBD
-fields terminated by '^A'
+fields terminated by ''
 trailing nullcols
 (
 TZRQ ,

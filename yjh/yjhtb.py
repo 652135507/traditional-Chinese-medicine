@@ -5,12 +5,14 @@ Created on Wed Oct 16 16:26:59 2019
 """
 import xlrd
 import calendar
-import datetime
+import datetime,time
+import pickle
 
 # filepath=r'D:/download/yjh/table2019.xlsx'
 file_r = 'D:/projects/traditional-Chinese-medicine/yjh/yjhtb.xls'
 file_w = 'D:/projects/traditional-Chinese-medicine/yjh/cre_tab.sql'
 ctl_dir= 'D:/projects/traditional-Chinese-medicine/yjh/ctl/'
+fd_delimter = '\01'
 
 def read_excel():
     # 打开文件
@@ -182,20 +184,23 @@ def write_sql(**dd):
                 for value in indexArray :
                     str2 = 'create index '+k+'_idx%d'%(indexArray.index(value))+' on '+k+r'(' +value+r');'
                     ftb.write('\n'+str2+'\n')
-                '''   
+                '''
             #create  ctl file
             file_ctl = ctl_dir+k+r'.ctl'
+            # 取上个月最后一天-->str_rq
             td = datetime.date.today()
-            ym = calendar.monthrange(td.year,td.month)
-            #rq = datetime.date( int(str(td.year) ) , int(str(td.month)) , 30 )
-            rq = datetime.date( td.year , td.month , ym[1] )
-            str_rq = rq.strftime('%Y%m%d')
+            #ym = calendar.monthrange(td.year,td.month)
+            #rq = datetime.date( td.year , td.month , ym[1] )
+            first_day = datetime.datetime(td.year,td.month,1,23,59,59)
+            up_last = first_day - datetime.timedelta(days=1)
+            str_rq = up_last.strftime('%Y%m%d')
             with open(file_ctl,'w',encoding='utf-8') as fctl :
                 fctl.write('load data\n')
                 fctl.write('Characterset UTF8\n')
                 fctl.write('infile '+'\'C004H101110102001-'+k+'-'+str_rq+'.txt'+'\'\n')
                 fctl.write('append into table '+k+'\n')
-                fctl.write('fields terminated by '+'\'^A\''+'\n')
+                #fctl.write('fields terminated by '+'\'^A\''+'\n')
+                fctl.write('fields terminated by '+'\''+fd_delimter+'\''+'\n')
                 fctl.write('trailing nullcols\n')
                 fctl.write('(\n')
                 for n,i in enumerate(ctlArray) :
@@ -209,5 +214,8 @@ if __name__ == '__main__':
     # 读取Excel
     tb_dict={}
     tb_dict=read_excel()
+    sfile = open("dump_tab.txt", "wb")
+    pickle.dump(tb_dict, sfile)
+    sfile.close()
     #print(tb_dict)
     write_sql(**tb_dict)
