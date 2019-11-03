@@ -1,6 +1,6 @@
 load data
 Characterset UTF8
-infile 'C004H101110102001-XYKXX-20190930.txt'
+infile 'C004H101110102001-XYKXX-20191031.txt'
 append into table XYKXX
 fields terminated by ''
 trailing nullcols

@@ -1,6 +1,6 @@
 load data
 Characterset UTF8
-infile 'C004H101110102001-LCCPXSMX-20190930.txt'
+infile 'C004H101110102001-LCCPXSMX-20191031.txt'
 append into table LCCPXSMX
 fields terminated by ''
 trailing nullcols

@@ -1,34 +1,28 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # encoding: utf-8
 import pickle
 import argparse
 '''
-# 1检查参数  cmd filename fieldList
 # 2按$2读入文件名，分析出结构名
 # 3读入utf-8文件，逐条核对，按$列表生成文件
 '''
 
-def main() :
-    parser = argparse.ArgumentParser(description='manual to this script')
-    parser.add_argument('--gpus', type=str, default=None)
-    parser.add_argument('--batch-size', type=int, default=32)
-    args = parser.parse_args()
-    print args.gpus
-    print args.batch_size
 
-    parser.add_argument("square", type=int,
-                        help="display a square of a given number")
-    parser.add_argument("-v", "--verbosity", type=int, choices=[0, 1, 2],
-                        help="increase output verbosity")
-    args = parser.parse_args()
-    answer = args.square**2
-    if args.verbosity == 2:
-            print "the square of {} equals {}".format(args.square, answer)
-    elif args.verbosity == 1:
-            print "{}^2 == {}".format(args.square, answer)
-    else:
-            print answer
-    
+def main():
+    parser = argparse.ArgumentParser(description='manual to this script')
+    parser.add_argument("-D", type = str, 
+        default='/app/ods/file/input/yinjianhui/')
+    #parser.add_argument('-i',  nargs='+', type=argparse.FileType('r') )
+    parser.add_argument('-i',  nargs='+', type=str )
+    parser.add_argument('-f', nargs='+')
+    parser.add_argument('-o',  nargs='?')
+    args = parser.parse_args('-i cre_tab.sql -f 1 2 -o xx'.split())
+    # 1检查参数  cmd -f filename fieldList
+    if args.o :
+            print ('the destfile and dir is {} and {}'.format(args.i, args.f) )
+    else :
+            print ( "the infiel is %s"%args.i )
+
     dfile = open("dump_tab.txt", "rb")
     result = pickle.load(dfile)
     dfile.close()
