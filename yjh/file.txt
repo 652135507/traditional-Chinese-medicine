@@ -85,17 +85,11 @@ True
 goodm
 
 >>> fp.close()
-
->>> 
-
- 
-
  
 3.1.3.2 fp.readline([size])
 
- 
-
-　　fp.readline([size]):只读取一行，size为读取的长度，以byte为单位，如果给定了size，有可能返回的只是一行的一部分，如果不指定参数，表示一次性读取一行，以字符串形式返回，结尾会有一个”\n”符号，读完一行，文件操作标记移动到下一行的开头，下次读取时，从下一行的开头开始
+　　fp.readline([size]):只读取一行，size为读取的长度，以byte为单位，如果给定了size，有可能返回的只是一行的一部分，如果不指定参数，
+表示一次性读取一行，以字符串形式返回，结尾会有一个”\n”符号，读完一行，文件操作标记移动到下一行的开头，下次读取时，从下一行的开头开始
 
 示例：按行读取，每读取一行，都会有一个/n符号
 
@@ -110,25 +104,10 @@ goodm
 ...
 
 goodmornin
-
- 
-
 my name is pangwei
-
- 
-
 one two three fore five six
-
 >>> fp.close()
-
->>> 
-
- 
-
 示例：按长度读取，一行读完之后/n符号会独占一行，之后会再换一行
-
- 
-
 >>> fp=open("d:\\newfile.txt","r")
 
 >>> for i in range(4):
@@ -142,10 +121,6 @@ one two three fore five six
 goodm
 
 ornin
-
- 
-
- 
 
 my na
 
@@ -195,13 +170,7 @@ one two three fore five six
 
 >>> fp.close()                 
 
->>>             
-
- 
-
- 
-
-　　fp.writelines(seq)：把序列seq的内容全部写入到文件中（多行一次性写入）。不会自动加入换行符；注意：seq中的内容也必须是字符串类型的数据，才能成功写入文件
+fp.writelines(seq)：把序列seq的内容全部写入到文件中（多行一次性写入）。不会自动加入换行符；注意：seq中的内容也必须是字符串类型的数据，才能成功写入文件
 
 >>> seq=["pangwei\n","is\n","a\n","boy\n","测试文件"]
 
@@ -210,17 +179,8 @@ one two three fore five six
 >>> fp.writelines(seq)
 
 >>> fp.close()
-
->>> 
-
- 
-
- 
-
-　　fp.close()：文件对象的close()方法刷新缓冲区里任何还没有写入的信息，并关闭该文件。用close关闭文件是一个很好的习惯，文件关闭之后不能再对文件进行操作，但是如果文件不及时关闭，有可能产生句柄泄露，丢失数据
-
- 
-
+fp.close()：文件对象的close()方法刷新缓冲区里任何还没有写入的信息，并关闭该文件。用close关闭文件是一个很好的习惯，
+文件关闭之后不能再对文件进行操作，但是如果文件不及时关闭，有可能产生句柄泄露，丢失数据
 　　fp.flush()：此函数将缓冲区中的内容写入硬盘
 
 　　fp.next()：返回文件的下一行内容，并将文件操作标记位移动到下一行，把一个文件(flie)用for i in file这样的循环遍历语句时，就是调用next()函数来实现。
@@ -271,7 +231,10 @@ one two three fore five six
 
  
 
-　　fp.seek(offset[,from]):这是一个文件定位函数，该方法改变当前文件的位置。offset变量表示要移动的字节数，from遍历指定开始移动字节的参考位置。如果from被设置为0（默认值），意味着将文件开头作为移动字节的参考位置；1表示使用当前位置作为参考位置；2表示使用文件的末尾作为参考位置。注意：如果使用a或者a+的模式打开文件，文件的标记会自动返回到文件末尾
+fp.seek(offset[,from]):这是一个文件定位函数，该方法改变当前文件的位置。offset变量表示要移动的字节数，
+from遍历指定开始移动字节的参考位置。如果from被设置为0（默认值），意味着将文件开头作为移动字节的参考位置；
+1表示使用当前位置作为参考位置；2表示使用文件的末尾作为参考位置。
+注意：如果使用a或者a+的模式打开文件，文件的标记会自动返回到文件末尾
 
  
 
@@ -437,7 +400,8 @@ print u"从文件中读取的列表对象:",storedlist
 
 　　1.文件读取
 
-　　　假如我们读取一个文件，文件保存时，使用的编码格式，决定了我们从文件读取的内容的编码格式，例如，新建一个文本文件test.txt, 编辑内容，保存的时候注意，编码格式设定为gb2312,那么使用python读取文件内容，方式如下：
+假如我们读取一个文件，文件保存时，使用的编码格式，决定了我们从文件读取的内容的编码格式，
+例如，新建一个文本文件test.txt, 编辑内容，保存的时候注意，编码格式设定为gb2312,那么使用python读取文件内容，方式如下：
 
 f = open('test.txt','r')
 s = f.read() #读取文件内容,如果是不识别的encoding格式（识别的encoding类型跟使用的系统有关），这里将读取失败
@@ -455,7 +419,7 @@ strGbk = u.encode('gbk')#转换为gbk编码的字符串str1
 此外，python提供了codecs包，可供进行文件的读取，包中的open()函数可以指定文件编码的类型：
 
 import codecs
-f = codecs.open('text.text','r+',encoding='utf-8')#必须事先知道文件的编码格式，这里文件编码是使用的utf-8
+f = codecs.open('text.text','r+',encoding='utf-8') #必须事先知道文件的编码格式，这里文件编码是使用的utf-8
 content = f.read()#如果open时使用的encoding和文件本身的encoding不一致的话，那么这里将将会产生错误
 f.write('你想要写入的信息')
 f.close()
@@ -465,39 +429,32 @@ f.close()
 3） content的类型为unicode。
 
 2.文件写入　
-　　  调用python文件写入函数时，如果待写入变量unStr是unicode类型，则系统首先使用系统的默认编码方式，将unStr变量进行unicode编码成str的类型，然后再写入文件。
-
+调用python文件写入函数时，如果待写入变量unStr是unicode类型，则系统首先使用系统的默认编码方式，将unStr变量进行unicode编码成str的类型，然后再写入文件。
 unStr=u"测试"
 f = open('test.txt','w')
-f.write(unStr)   #如果系统的默认编码是asii，则会出现UnicodeEncodeError问题
-
-  　　如果系统的默认编码方式是ascii，则就会出现上文中提到的UnicodeEncodeError问题。解决方法有两个：
-
-　　  1) 首先获取文件的默认编码格式，执行write函数前，将unStr编码成文件的默认编码格式，例如：在我的机器上，创建一个新文件时，其文件编码格式为utf-8，
+f.write(unStr)   
+如果系统的默认编码方式是ascii，则就会出现上文中提到的UnicodeEncodeError问题。解决方法有两个：
+1首先获取文件的默认编码格式，执行write函数前，将unStr编码成文件的默认编码格式，
+例如：在我的机器上，创建一个新文件时，其文件编码格式为utf-8，
 则修改f.write(unStr) 为f.write(unStr.encoding('utf-8'))。（建议选这一种）
-　　  2) 修改系统的默认编码方式为utf-8；
-      3.　关于sys.setdefaultencoding()和sys.stdout.encoding()
-        1) sys.setdefaultencoding()是str类型编解码时默认使用的编码格式，文件读写、str类型编码，在不明确指定编码格式的情况下均使用 sys.setdefaultencoding()
-　    　#! /usr/bin/env python 
-　    　# -*- coding: utf-8 -*- 
-　　    s = '中文字符'  # 这里的 str 是 str 类型的，而不是 unicode 
-　　    s.encode('gb2312') 
+2修改系统的默认编码方式为utf-8；
+3关于sys.setdefaultencoding()和sys.stdout.encoding()
+1) sys.setdefaultencoding()是str类型编解码时默认使用的编码格式，文件读写、str类型编码，在不明确指定编码格式的情况下均使用 sys.setdefaultencoding()
+    #! /usr/bin/env python 
+　  # -*- coding: utf-8 -*- 
+　　s = '中文字符'  # 这里的 str 是 str 类型的，而不是 unicode 
+　　s.encode('gb2312') 
 这句代码将 s 重新编码为 gb2312 的格式，即进行 unicode -> str 的转换。因为 s 本身就是 str 类型的，因此 Python 会自动的先将 s 解码为 unicode ，
 然后再编码成 gb2312。因为解码是python自动进行的，我们没有指明解码方式，python 就会使用 sys.defaultencoding 指明的方式来解码。
 很多情况下 sys.defaultencoding为ANSCII，如果 s 不是这个类型就会出错。
 　　UnicodeDecodeError: 'ascii' codec can't decode byte 0xe4 in position 
 　　0: ordinal not in range(128)
-       2）sys.stdout.encoding() 是终端输出的默认编码格式，例如：print
-　　  至此，python2.7中有关中文编码的相关问题分析及解决已接近尾声，由于笔者水平有限，难免出现错误和不当的地方，希望大家多多指正。
+2）sys.stdout.encoding() 是终端输出的默认编码格式，例如：print
 
+如果在文件里有汉字，那么使用__builtin__的open read可能会有问题，因为read是以字节为单位，
+可能造成一个汉字被读了一半。除非一次性把文件都读入内存，否则很容易出现这个问题
 
-
-如果在文件里有汉字，那么使用__builtin__的open read可能会有问题，因为read是以字节为单位，可能造成一个汉字被
-读了一半。除非一次性把文件都读入内存，否则很容易出现这个问题
-
-解决办法：
-
-使用codecs模块：
+解决办法：使用codecs模块：
 
 import codecs
 

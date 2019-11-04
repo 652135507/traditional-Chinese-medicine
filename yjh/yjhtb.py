@@ -215,7 +215,7 @@ if __name__ == '__main__':
     tb_dict={}
     tb_dict=read_excel()
     sfile = open("dump_tab.txt", "wb")
-    pickle.dump(tb_dict, sfile)
+    pickle.dump(tb_dict, sfile,protocol=2)
     sfile.close()
     #print(tb_dict)
     write_sql(**tb_dict)
